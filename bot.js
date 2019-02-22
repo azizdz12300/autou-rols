@@ -1,10 +1,12 @@
+const Discord = require("discord.js");
+const client = new Discord.Client();
 const rWlc = {}
 client.on('message', message => { 
-var prefix = "*";//البرفكس  
+var prefix = "-";//البرفكس  
 if(message.channel.type === "dm") return;
 if(message.author.bot) return;
    if(!rWlc[message.guild.id]) rWlc[message.guild.id] = { 
-    role: "U.T,!"
+    role: "member"
   }
 const channel = rWlc[message.guild.id].role
   if (message.content.startsWith(prefix + "autorole")) { 
@@ -28,6 +30,4 @@ client.on("guildMemberAdd", member => {
       
       
       }); 
-});
-
-client.login(process.env.BOT_TOKEN);// لا تغير فيها شيء
+}); 
