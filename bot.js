@@ -7,7 +7,7 @@ var prefix = "*";//البرفكس
 if(message.channel.type === "dm") return;
 if(message.author.bot) return;
    if(!rWlc[message.guild.id]) rWlc[message.guild.id] = { 
-    role: "U.T,!"
+    role: ",legand."
   }
 const channel = rWlc[message.guild.id].role
   if (message.content.startsWith(prefix + "autorole")) { 
