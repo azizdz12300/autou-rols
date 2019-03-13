@@ -1,5 +1,7 @@
 const Discord = require("discord.js");
-const fs = require("fs")
+const client = new Discord.Client();
+
+
 const client = new Discord.Client();
 let ar = JSON.parse(fs.readFileSync(`./Data/AutoRole.json`, `utf8`))
 
@@ -80,4 +82,4 @@ client.on('ready', () => {
 
 
 
-client.login("");// توكن بوتك
+client.login(process.env.BOT_TOKEN);// لا تغير فيها شيء
