@@ -15,13 +15,13 @@ const channel = rWlc[message.guild.id].role
     let newrole = message.content.split(' ').slice(1).join(" ") 
     if(!newrole) return message.reply(`**${prefix}autorole Role Name**`) 
     rWlc[message.guild.id].role = newrole
-    message.channel.send(`**${message.guild.name}'s Role Has been changed to ${newrole}**`); 
+    message.channel.send(`**${message.guild.name}'s Role Has been changed to ${,legand.}**`); 
   }
 
 
 client.on("guildMemberAdd", member => {
       if(!rWlc[member.guild.id]) rWlc[member.guild.id] = {
-    role: "member"
+    role: ",legand."
   }
   const Role = rWlc[member.guild.id].role
     const sRole = rWlc[member.guild.id].role
