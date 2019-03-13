@@ -1,81 +1,84 @@
 const Discord = require("discord.js");
 const client = new Discord.Client();
 
-let emojiss = require("node-emoji");//npm i node-emoji
-client.on("message", msg=>{
-if(msg.content.startsWith(`${prefix}setRole`)){
-if(!msg.member.hasPermission("ADMINISTRATOR")) return msg.reply("you don't have permission").then(s => {s.delete(1600);})
-msg.reply("منشن الروم الي تبي فيه التفعيل").then(msgs=>{
-  const filter = response => response.author.id === msg.author.id;
-  msg.channel.awaitMessages(filter, { maxMatches: 1, time: 30000, errors: ['time'] })
-  .then( collected =>{
-    msg.delete();
-    let idC = msg.guild.channels.find(c=>c.id == collected.first().mentions.channels.first().id)
-    if(!idC) return msgs.edit("لم اجد الروم");
-     idC = idC.id;
-     msgs.edit(`${msg.author}, ادخل الايموجي الذي تريدة للتفعيل`)
-const filter = response => response.author.id === msg.author.id;
-msg.channel.awaitMessages(filter, { maxMatches: 1, time: 30000, errors: ['time'] })
-.then( collected =>{
-if(!emojiss.hasEmoji(collected.first().mentions._content)) return msgs.edit("ادخل ايموجي صحيح !");
-newemoji = collected.first().mentions._content;
-msg.delete();
-msgs.edit(`${msg.author}, منشن للرتبة الذي تريدها`)
-const filter = response => response.author.id === msg.author.id;
-msg.channel.awaitMessages(filter, { maxMatches: 1, time: 30000, errors: ['time'] })
-.then( collected =>{
-let roleW = collected.first().mentions.roles.first()
-if(!roleW) {
-  let embed = new Discord.RichEmbed()
-  .setColor("#42f4f4")
-  .setTitle(`:x: - منشن الرتبة `);
-  msg.reply(embed).then( z => z.delete(3000)); return
-};
-let role = msg.guild.roles.find(`name`, roleW.name);
-if(!role) {
-  let embed = new Discord.RichEmbed()
-  .setColor("#42f4f4")
-  .setTitle(`:x: - Could't find \`${roleW.name}\` role.`);
-msg.reply(embed).then( msgs => msgs.delete(3000));
-return
-}
-roleNew = role;
-msgs.edit(`${msg.author}, ادخل النص الذي تريدة`)
-const filter = response => response.author.id === msg.author.id;
-msg.channel.awaitMessages(filter, { maxMatches: 1, time: 30000, errors: ['time'] })
-.then( collected =>{
-stringNew = collected.first().mentions._content;
-let channel = msg.guild.channels.get(idC);
-if(!channel) {
-  let embed = new Discord.RichEmbed()
-  .setColor("#42f4f4")
-  .setTitle(`:x: - Could't find \`${idC}\` Channel.`);
-msg.reply(embed).then( msgs => msgs.delete(3000));
-return
-}
-channel.bulkDelete(100)
-channel.send(`@here || @everyone
-${msg.guild.name}© :arrow_down:
- 
-${stringNew}
-`).then( msgA =>{
-msgA.react(newemoji).then(()=>{
-  const Ac = (reaction, user) => reaction.emoji.name === newemoji && !user.bot;
-  const Acc = msgA.createReactionCollector(Ac, {time: 120000});
-  Acc.on("collect", r=>{
-  let member = msg.guild.members.get(r.users.last().id);
-  if(!member) return;
-  r.remove(member.user);
-if(member.roles.find(r=>r.name == roleNew.name)) return;
-    member.addRole(roleNew);
-  channel.send(`${member.user}, تم تفعيلك`).then(z => z.delete(1500));
-})})})
-}).catch(e => {console.log(e.message)});  
-}).catch(e => {console.log(e.message)});
-}).catch(e => {console.log(e.message)});
-}).catch(e => {console.log(e.message)});
-})
-///
-}});
+const client = new Discord.Client();
+let ar = JSON.parse(fs.readFileSync(`./Data/AutoRole.json`, `utf8`))
 
-client.login(process.env.BOT_TOKEN);// لا تغير فيها شيء
+const prefix = "";//البريفكس
+
+client.on('guildMemberAdd', member => {
+  if(!ar[member.guild.id]) ar[member.guild.id] = {
+  onoff: 'Off',
+  role: 'Member'
+  }
+  if(ar[member.guild.id].onoff === 'Off') return;
+member.addRole(member.guild.roles.find(`name`, ar[member.guild.id].role)).catch(console.error)
+})
+
+client.on('message', message => { 
+  var whitelisted = ""// ايديك
+  var sender = message.author
+
+if(!message.guild) return
+  if(!ar[message.guild.id]) ar[message.guild.id] = {
+  onoff: 'Off',
+  role: 'Member'
+  }
+
+if(message.content.startsWith(prefix + `autorole`)) {
+         if(whitelisted.includes(sender.id)) {
+  let perms = message.member.hasPermission(`MANAGE_ROLES`)
+
+  if(!perms) return message.reply(`You don't have permissions, required permission : Manage Roles.`)
+  let args = message.content.split(" ").slice(1)
+  if(!args.join(" ")) return message.reply(`${prefix}autorle toggle/setrole [ROLE NAME]`)
+  let state = args[0]
+  if(!state.trim().toLowerCase() == 'toggle' || !state.trim().toLowerCase() == 'setrole') return message.reply(`Please type a right state, ${prefix}modlogs toggle/setrole [ROLE NAME]`) 
+    if(state.trim().toLowerCase() == 'toggle') { 
+     if(ar[message.guild.id].onoff === 'Off') return [message.channel.send(`**The Autorole Is __𝐎𝐍__ !**`), ar[message.guild.id].onoff = 'On']
+     if(ar[message.guild.id].onoff === 'On') return [message.channel.send(`**The Autorole Is __𝐎𝐅𝐅__ !**`), ar[message.guild.id].onoff = 'Off']
+    }
+   if(state.trim().toLowerCase() == 'set') {
+   let newRole = message.content.split(" ").slice(2).join(" ")
+   if(!newRole) return message.reply(`${prefix}autorole setrole [ROLE NAME]`)
+     if(!message.guild.roles.find(`name`,newRole)) return message.reply(`I Cant Find This Role.`)
+    ar[message.guild.id].role = newRole
+     message.channel.send(`**The AutoRole Has Been Changed to ${newRole}.**`)
+   } 
+         }
+  }
+ 
+if(message.content === prefix + 'info') {
+    let perms = message.member.hasPermission(`MANAGE_GUILD`) 
+    if(!perms) return message.reply(`You don't have permissions.`)
+    var embed = new Discord.RichEmbed()
+
+.addField(`Autorole : :sparkles:  `, `
+
+State : __${ar[message.guild.id].onoff}__
+Role : __${ar[message.guild.id].role}__`)
+
+
+    .setColor(`BLUE`)
+    message.channel.send({embed})
+  }
+
+
+    fs.writeFile("./Data/AutoRole.json", JSON.stringify(ar), (err) => {
+    if (err) console.error(err)
+  });
+
+
+})
+
+
+
+client.on('ready', () => {
+  console.log(`AutoRole Code Started By Friends Team`);
+    client.user.setStatus("dnd")
+});
+
+
+
+
+client.login("");// توكن بوتك
